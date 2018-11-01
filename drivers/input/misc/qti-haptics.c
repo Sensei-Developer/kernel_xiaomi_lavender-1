@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/debugfs.h>
 #include <linux/delay.h>
+=======
+ * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ */
+
+#include <linux/debugfs.h>
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/fs.h>
@@ -58,6 +65,11 @@ enum haptics_custom_effect_param {
 #define HAP_WAVEFORM_BUFFER_MAX		8
 #define HAP_VMAX_MV_DEFAULT		1800
 #define HAP_VMAX_MV_MAX			3596
+<<<<<<< HEAD
+=======
+#define HAP_ILIM_MA_DEFAULT		400
+#define HAP_ILIM_MA_MAX			800
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 #define HAP_PLAY_RATE_US_DEFAULT	5715
 #define HAP_PLAY_RATE_US_MAX		20475
 #define HAP_PLAY_RATE_US_LSB		5
@@ -129,8 +141,11 @@ enum haptics_custom_effect_param {
 #define HAP_VMAX_MV_LSB			116
 
 #define REG_HAP_ILIM_CFG		0x52
+<<<<<<< HEAD
 #define HAP_ILIM_SEL_1000MA		BIT(1)
 #define HAP_ILIM_DEFAULT_SEL		HAP_ILIM_SEL_1000MA
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 #define REG_HAP_SC_DEB_CFG		0x53
 #define REG_HAP_RATE_CFG1		0x54
 #define REG_HAP_RATE_CFG2		0x55
@@ -180,7 +195,10 @@ struct qti_hap_effect {
 	int			brake_pattern_length;
 	bool			brake_en;
 	bool			lra_auto_res_disable;
+<<<<<<< HEAD
 	enum wf_src		wf_src;
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 };
 
 struct qti_hap_play_info {
@@ -195,9 +213,18 @@ struct qti_hap_config {
 	enum actutor_type	act_type;
 	enum lra_res_sig_shape	lra_shape;
 	enum lra_auto_res_mode	lra_auto_res_mode;
+<<<<<<< HEAD
 	u16			vmax_mv;
 	u16			play_rate_us;
 	bool			lra_allow_variable_play_rate;
+=======
+	enum wf_src		ext_src;
+	u16			vmax_mv;
+	u16			ilim_ma;
+	u16			play_rate_us;
+	bool			lra_allow_variable_play_rate;
+	bool			use_ext_wf_src;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 };
 
 struct qti_hap_chip {
@@ -205,6 +232,10 @@ struct qti_hap_chip {
 	struct device			*dev;
 	struct regmap			*regmap;
 	struct input_dev		*input_dev;
+<<<<<<< HEAD
+=======
+	struct pwm_device		*pwm_dev;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	struct qti_hap_config		config;
 	struct qti_hap_play_info	play;
 	struct qti_hap_effect		*predefined;
@@ -227,7 +258,10 @@ struct qti_hap_chip {
 
 static int wf_repeat[8] = {1, 2, 4, 8, 16, 32, 64, 128};
 static int wf_s_repeat[4] = {1, 2, 4, 8};
+<<<<<<< HEAD
 const static char * const wf_src_str[] = {"vmax", "buffer", "audio", "pwm"};
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 
 static inline bool is_secure(u8 addr)
 {
@@ -285,9 +319,15 @@ static int qti_haptics_write(struct qti_hap_chip *chip,
 			rc = regmap_write(chip->regmap,
 					chip->reg_base + addr, *val);
 
+<<<<<<< HEAD
 		if (rc < 0)
 			dev_err(chip->dev, "write addr 0x%x failed, rc=%d\n",
 					addr, rc);
+=======
+			if (rc < 0)
+				dev_err(chip->dev, "write addr 0x%x failed, rc=%d\n",
+						addr, rc);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	}
 
 	for (i = 0; i < len; i++)
@@ -398,11 +438,14 @@ static int qti_haptics_config_wf_buffer(struct qti_hap_chip *chip)
 	int rc = 0;
 	size_t len;
 
+<<<<<<< HEAD
 	if (effect->pattern == NULL) {
 		dev_dbg(chip->dev, "no pattern for effect %d\n", effect->id);
 		return 0;
 	}
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	if (play->playing_pos == effect->pattern_length) {
 		dev_dbg(chip->dev, "pattern playing done\n");
 		return 0;
@@ -498,8 +541,16 @@ static int qti_haptics_config_wf_src(struct qti_hap_chip *chip,
 	int rc;
 
 	addr = REG_HAP_SEL;
+<<<<<<< HEAD
 	mask = HAP_WF_SOURCE_MASK;
 	val = src << HAP_WF_SOURCE_SHIFT;
+=======
+	mask = HAP_WF_SOURCE_MASK | HAP_WF_TRIGGER_BIT;
+	val = src << HAP_WF_SOURCE_SHIFT;
+	if (src == EXT_WF_AUDIO || src == EXT_WF_PWM)
+		val |= HAP_WF_TRIGGER_BIT;
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	rc = qti_haptics_masked_write(chip, addr, mask, val);
 	if (rc < 0)
 		dev_err(chip->dev, "set HAP_SEL failed, rc=%d\n", rc);
@@ -706,6 +757,7 @@ static int qti_haptics_load_predefined_effect(struct qti_hap_chip *chip,
 	if (rc < 0)
 		return rc;
 
+<<<<<<< HEAD
 	/* Set corresponding WF_SOURCE */
 	rc = qti_haptics_config_wf_src(chip, play->effect->wf_src);
 	if (rc < 0)
@@ -722,6 +774,22 @@ static int qti_haptics_load_predefined_effect(struct qti_hap_chip *chip,
 
 		play->playing_pattern = true;
 	}
+=======
+	rc = qti_haptics_config_wf_buffer(chip);
+	if (rc < 0)
+		return rc;
+
+	rc = qti_haptics_config_wf_repeat(chip);
+	if (rc < 0)
+		return rc;
+
+	/* Set WF_SOURCE to buffer */
+	rc = qti_haptics_config_wf_src(chip, INT_WF_BUFFER);
+	if (rc < 0)
+		return rc;
+
+	play->playing_pattern = true;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 
 	return 0;
 }
@@ -734,10 +802,13 @@ static irqreturn_t qti_haptics_play_irq_handler(int irq, void *data)
 	int rc;
 
 	dev_dbg(chip->dev, "play_irq triggered\n");
+<<<<<<< HEAD
 
 	if (effect == NULL)
 		goto handled;
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	if (play->playing_pos == effect->pattern_length) {
 		dev_dbg(chip->dev, "waveform playing done\n");
 		if (chip->play_irq_en) {
@@ -745,9 +816,12 @@ static irqreturn_t qti_haptics_play_irq_handler(int irq, void *data)
 			chip->play_irq_en = false;
 		}
 
+<<<<<<< HEAD
 		/* Clear PLAY after all pattern bytes are queued */
 		qti_haptics_play(chip, false);
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		goto handled;
 	}
 
@@ -819,6 +893,7 @@ static inline void get_play_length(struct qti_hap_play_info *play,
 	struct qti_hap_effect *effect = play->effect;
 	int tmp;
 
+<<<<<<< HEAD
 	/*
 	 * Return play_length to 0 if playing LINE-IN signal,
 	 * the playing has to be stopped explicitly from the
@@ -830,6 +905,8 @@ static inline void get_play_length(struct qti_hap_play_info *play,
 		return;
 	}
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	tmp = effect->pattern_length * effect->play_rate_us;
 	tmp *= wf_s_repeat[effect->wf_s_repeat_n];
 	tmp *= wf_repeat[effect->wf_repeat_n];
@@ -957,8 +1034,11 @@ static int qti_haptics_playback(struct input_dev *dev, int effect_id, int val)
 
 	dev_dbg(chip->dev, "playback, val = %d\n", val);
 	if (!!val) {
+<<<<<<< HEAD
 		pr_debug("Vibration - on at %lu us\n",
 				(unsigned long)ktime_to_us(ktime_get()));
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		rc = qti_haptics_module_en(chip, true);
 		if (rc < 0)
 			return rc;
@@ -972,11 +1052,19 @@ static int qti_haptics_playback(struct input_dev *dev, int effect_id, int val)
 				enable_irq(chip->play_irq);
 				chip->play_irq_en = true;
 			}
+<<<<<<< HEAD
+=======
+			/* Toggle PLAY when playing pattern */
+			rc = qti_haptics_play(chip, false);
+			if (rc < 0)
+				return rc;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		} else {
 			if (chip->play_irq_en) {
 				disable_irq_nosync(chip->play_irq);
 				chip->play_irq_en = false;
 			}
+<<<<<<< HEAD
 
 			if (play->length_us != 0) {
 				secs = play->length_us / USEC_PER_SEC;
@@ -990,6 +1078,15 @@ static int qti_haptics_playback(struct input_dev *dev, int effect_id, int val)
 	} else {
 		pr_debug("Vibration - off at %lu us\n",
 				(unsigned long)ktime_to_us(ktime_get()));
+=======
+			secs = play->length_us / USEC_PER_SEC;
+			nsecs = (play->length_us % USEC_PER_SEC) *
+				NSEC_PER_USEC;
+			hrtimer_start(&chip->stop_timer, ktime_set(secs, nsecs),
+					HRTIMER_MODE_REL);
+		}
+	} else {
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		play->length_us = 0;
 		rc = qti_haptics_play(chip, false);
 		if (rc < 0)
@@ -1071,7 +1168,11 @@ static int qti_haptics_hw_init(struct qti_hap_chip *chip)
 
 	/* Config ilim_ma */
 	addr = REG_HAP_ILIM_CFG;
+<<<<<<< HEAD
 	val = HAP_ILIM_DEFAULT_SEL;
+=======
+	val = config->ilim_ma == 400 ? 0 : 1;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	rc = qti_haptics_write(chip, addr, &val, 1);
 	if (rc < 0) {
 		dev_err(chip->dev, "write ilim_ma failed, rc=%d\n", rc);
@@ -1107,15 +1208,30 @@ static int qti_haptics_hw_init(struct qti_hap_chip *chip)
 	if (rc < 0)
 		return rc;
 
+<<<<<<< HEAD
+=======
+	/* Set external waveform source if it's used */
+	if (config->use_ext_wf_src) {
+		rc = qti_haptics_config_wf_src(chip, config->ext_src);
+		if (rc < 0)
+			return rc;
+	}
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	/*
 	 * Skip configurations below for ERM actuator
 	 * as they're only for LRA actuators
 	 */
+<<<<<<< HEAD
 	if (config->act_type == ACT_ERM) {
 		/* Disable AUTO_RES for ERM */
 		rc = qti_haptics_lra_auto_res_enable(chip, false);
 		return rc;
 	}
+=======
+	if (config->act_type == ACT_ERM)
+		return 0;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 
 	addr = REG_HAP_CFG2;
 	val = config->lra_shape;
@@ -1199,11 +1315,20 @@ static void verify_brake_setting(struct qti_hap_effect *effect)
 
 static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 {
+<<<<<<< HEAD
 	struct device_node *node = chip->dev->of_node;
 	struct device_node *child_node;
 	struct qti_hap_config *config = &chip->config;
 	struct qti_hap_effect *effect;
 	int rc, i = 0, j, m, tmp;
+=======
+	const struct device_node *node = chip->dev->of_node;
+	struct device_node *child_node;
+	struct qti_hap_config *config = &chip->config;
+	struct qti_hap_effect *effect;
+	int rc, i = 0, j, m;
+	u32 tmp;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 
 	for_each_available_child_of_node(node, child_node) {
 		effect = &chip->predefined[i++];
@@ -1224,6 +1349,7 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 			effect->vmax_mv = (tmp > HAP_VMAX_MV_MAX) ?
 				HAP_VMAX_MV_MAX : tmp;
 
+<<<<<<< HEAD
 		effect->play_rate_us = config->play_rate_us;
 		rc = of_property_read_u32(child_node, "qcom,wf-play-rate-us",
 				&tmp);
@@ -1279,6 +1405,8 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 		if (effect->wf_src != INT_WF_BUFFER)
 			continue;
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		rc = of_property_count_elems_of_size(child_node,
 				"qcom,wf-pattern", sizeof(u8));
 		if (rc < 0) {
@@ -1304,6 +1432,25 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 			return rc;
 		}
 
+<<<<<<< HEAD
+=======
+		effect->play_rate_us = config->play_rate_us;
+		rc = of_property_read_u32(child_node, "qcom,wf-play-rate-us",
+				&tmp);
+		if (rc < 0)
+			dev_dbg(chip->dev, "Read qcom,wf-play-rate-us failed, rc=%d\n",
+					rc);
+		else
+			effect->play_rate_us = tmp;
+
+		if (config->act_type == ACT_LRA &&
+				!config->lra_allow_variable_play_rate &&
+				config->play_rate_us != effect->play_rate_us) {
+			dev_warn(chip->dev, "play rate should match with LRA resonance frequency\n");
+			effect->play_rate_us = config->play_rate_us;
+		}
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		rc = of_property_read_u32(child_node, "qcom,wf-repeat-count",
 				&tmp);
 		if (rc < 0) {
@@ -1329,10 +1476,39 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 
 			effect->wf_s_repeat_n = j;
 		}
+<<<<<<< HEAD
+=======
+
+		effect->lra_auto_res_disable = of_property_read_bool(child_node,
+				"qcom,lra-auto-resonance-disable");
+
+		tmp = of_property_count_elems_of_size(child_node,
+				"qcom,wf-brake-pattern", sizeof(u8));
+		if (tmp <= 0)
+			continue;
+
+		if (tmp > HAP_BRAKE_PATTERN_MAX) {
+			dev_err(chip->dev, "wf-brake-pattern shouldn't be more than %d bytes\n",
+					HAP_BRAKE_PATTERN_MAX);
+			return -EINVAL;
+		}
+
+		rc = of_property_read_u8_array(child_node,
+				"qcom,wf-brake-pattern", effect->brake, tmp);
+		if (rc < 0) {
+			dev_err(chip->dev, "Failed to get wf-brake-pattern, rc=%d\n",
+					rc);
+			return rc;
+		}
+
+		effect->brake_pattern_length = tmp;
+		verify_brake_setting(effect);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	}
 
 	for (j = 0; j < i; j++) {
 		dev_dbg(chip->dev, "effect: %d\n", chip->predefined[j].id);
+<<<<<<< HEAD
 		dev_dbg(chip->dev, "    vmax: %d mv\n",
 				chip->predefined[j].vmax_mv);
 		dev_dbg(chip->dev, "    waveform source: %s\n",
@@ -1352,10 +1528,29 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 					m, chip->predefined[j].pattern[m]);
 		dev_dbg(chip->dev, "    play_rate: %d us\n",
 				chip->predefined[j].play_rate_us);
+=======
+		dev_dbg(chip->dev, "        vmax: %d mv\n",
+				chip->predefined[j].vmax_mv);
+		dev_dbg(chip->dev, "        play_rate: %d us\n",
+				chip->predefined[j].play_rate_us);
+		for (m = 0; m < chip->predefined[j].pattern_length; m++)
+			dev_dbg(chip->dev, "        pattern[%d]: 0x%x\n",
+					m, chip->predefined[j].pattern[m]);
+		for (m = 0; m < chip->predefined[j].brake_pattern_length; m++)
+			dev_dbg(chip->dev, "        brake_pattern[%d]: 0x%x\n",
+					m, chip->predefined[j].brake[m]);
+		dev_dbg(chip->dev, "    brake_en: %d\n",
+				chip->predefined[j].brake_en);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		dev_dbg(chip->dev, "    wf_repeat_n: %d\n",
 				chip->predefined[j].wf_repeat_n);
 		dev_dbg(chip->dev, "    wf_s_repeat_n: %d\n",
 				chip->predefined[j].wf_s_repeat_n);
+<<<<<<< HEAD
+=======
+		dev_dbg(chip->dev, "    lra_auto_res_disable: %d\n",
+				chip->predefined[j].lra_auto_res_disable);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	}
 
 	return 0;
@@ -1364,7 +1559,11 @@ static int qti_haptics_parse_dt_per_effect(struct qti_hap_chip *chip)
 static int qti_haptics_lra_parse_dt(struct qti_hap_chip *chip)
 {
 	struct qti_hap_config *config = &chip->config;
+<<<<<<< HEAD
 	struct device_node *node = chip->dev->of_node;
+=======
+	const struct device_node *node = chip->dev->of_node;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	const char *str;
 	int rc;
 
@@ -1410,7 +1609,11 @@ static int qti_haptics_lra_parse_dt(struct qti_hap_chip *chip)
 static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 {
 	struct qti_hap_config *config = &chip->config;
+<<<<<<< HEAD
 	struct device_node *node = chip->dev->of_node;
+=======
+	const struct device_node *node = chip->dev->of_node;
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	const char *str;
 	int rc = 0, tmp;
 
@@ -1453,12 +1656,40 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 		config->vmax_mv = (tmp > HAP_VMAX_MV_MAX) ?
 			HAP_VMAX_MV_MAX : tmp;
 
+<<<<<<< HEAD
+=======
+	config->ilim_ma = HAP_ILIM_MA_DEFAULT;
+	rc = of_property_read_u32(node, "qcom,ilim-ma", &tmp);
+	if (!rc)
+		config->ilim_ma = (tmp >= HAP_ILIM_MA_MAX) ?
+			HAP_ILIM_MA_MAX : HAP_ILIM_MA_DEFAULT;
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	config->play_rate_us = HAP_PLAY_RATE_US_DEFAULT;
 	rc = of_property_read_u32(node, "qcom,play-rate-us", &tmp);
 	if (!rc)
 		config->play_rate_us = (tmp >= HAP_PLAY_RATE_US_MAX) ?
 			HAP_PLAY_RATE_US_MAX : tmp;
 
+<<<<<<< HEAD
+=======
+	if (of_find_property(node, "qcom,external-waveform-source", NULL)) {
+		if (!of_property_read_string(node,
+				"qcom,external-waveform-source", &str)) {
+			if (strcmp(str, "audio") == 0) {
+				config->ext_src = EXT_WF_AUDIO;
+			} else if (strcmp(str, "pwm") == 0) {
+				config->ext_src = EXT_WF_PWM;
+			} else {
+				dev_err(chip->dev, "Invalid external waveform source: %s\n",
+						str);
+				return -EINVAL;
+			}
+		}
+		config->use_ext_wf_src = true;
+	}
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	if (of_find_property(node, "vdd-supply", NULL)) {
 		chip->vdd_supply = devm_regulator_get(chip->dev, "vdd");
 		if (IS_ERR(chip->vdd_supply)) {
@@ -1625,6 +1856,7 @@ static int auto_res_dbgfs_write(void *data, u64 val)
 DEFINE_DEBUGFS_ATTRIBUTE(auto_res_debugfs_ops,  auto_res_dbgfs_read,
 		auto_res_dbgfs_write, "%llu\n");
 
+<<<<<<< HEAD
 #define WF_SRC_BYTES	12
 static ssize_t wf_src_dbgfs_read(struct file *filep,
 		char __user *buf, size_t count, loff_t *ppos)
@@ -1653,6 +1885,8 @@ static const struct file_operations wf_src_dbgfs_ops = {
 	.open = simple_open,
 };
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 #define CHAR_PER_PATTERN 8
 static ssize_t brake_pattern_dbgfs_read(struct file *filep,
 		char __user *buf, size_t count, loff_t *ppos)
@@ -1688,11 +1922,19 @@ static ssize_t brake_pattern_dbgfs_write(struct file *filep,
 {
 	struct qti_hap_effect *effect =
 		(struct qti_hap_effect *)filep->private_data;
+<<<<<<< HEAD
 	char *kbuf, *str, *token;
 	int rc = 0, i = 0, j;
 	u32 val;
 
 	kbuf = kzalloc(count + 1, GFP_KERNEL);
+=======
+	char *kbuf, *token;
+	int rc = 0, i = 0, j;
+	u32 val;
+
+	kbuf = kmalloc(count + 1, GFP_KERNEL);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	if (!kbuf)
 		return -ENOMEM;
 
@@ -1704,8 +1946,13 @@ static ssize_t brake_pattern_dbgfs_write(struct file *filep,
 
 	kbuf[count] = '\0';
 	*ppos += count;
+<<<<<<< HEAD
 	str = kbuf;
 	while ((token = strsep(&str, " ")) != NULL) {
+=======
+
+	while ((token = strsep(&kbuf, " ")) != NULL) {
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		rc = kstrtouint(token, 0, &val);
 		if (rc < 0) {
 			rc = -EINVAL;
@@ -1771,11 +2018,19 @@ static ssize_t pattern_dbgfs_write(struct file *filep,
 {
 	struct qti_hap_effect *effect =
 		(struct qti_hap_effect *)filep->private_data;
+<<<<<<< HEAD
 	char *kbuf, *str, *token;
 	int rc = 0, i = 0, j;
 	u32 val;
 
 	kbuf = kzalloc(count + 1, GFP_KERNEL);
+=======
+	char *kbuf, *token;
+	int rc = 0, i = 0, j;
+	u32 val;
+
+	kbuf = kmalloc(count + 1, GFP_KERNEL);
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	if (!kbuf)
 		return -ENOMEM;
 
@@ -1787,8 +2042,13 @@ static ssize_t pattern_dbgfs_write(struct file *filep,
 
 	kbuf[count] = '\0';
 	*ppos += count;
+<<<<<<< HEAD
 	str = kbuf;
 	while ((token = strsep(&str, " ")) != NULL) {
+=======
+
+	while ((token = strsep(&kbuf, " ")) != NULL) {
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 		rc = kstrtouint(token, 0, &val);
 		if (rc < 0) {
 			rc = -EINVAL;
@@ -1836,6 +2096,23 @@ static int create_effect_debug_files(struct qti_hap_effect *effect,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	file = debugfs_create_file("wf_repeat_n", 0644, dir,
+			effect, &wf_repeat_n_debugfs_ops);
+	if (!file) {
+		pr_err("create wf-repeat debugfs node failed\n");
+		return -ENOMEM;
+	}
+
+	file = debugfs_create_file("wf_s_repeat_n", 0644, dir,
+			effect, &wf_s_repeat_n_debugfs_ops);
+	if (!file) {
+		pr_err("create wf-s-repeat debugfs node failed\n");
+		return -ENOMEM;
+	}
+
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	file = debugfs_create_file("lra_auto_res_en", 0644, dir,
 			effect, &auto_res_debugfs_ops);
 	if (!file) {
@@ -1850,6 +2127,7 @@ static int create_effect_debug_files(struct qti_hap_effect *effect,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	file = debugfs_create_file("wf_src", 0444, dir,
 			effect, &wf_src_dbgfs_ops);
 	if (!file) {
@@ -1860,6 +2138,8 @@ static int create_effect_debug_files(struct qti_hap_effect *effect,
 	if (effect->wf_src == EXT_WF_AUDIO || effect->wf_src == EXT_WF_PWM)
 		return 0;
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	file = debugfs_create_file("pattern", 0644, dir,
 			effect, &pattern_dbgfs_ops);
 	if (!file) {
@@ -1867,6 +2147,7 @@ static int create_effect_debug_files(struct qti_hap_effect *effect,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	file = debugfs_create_file("wf_repeat_n", 0644, dir,
 			effect, &wf_repeat_n_debugfs_ops);
 	if (!file) {
@@ -1881,6 +2162,8 @@ static int create_effect_debug_files(struct qti_hap_effect *effect,
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> 753a035c063c (input: misc: Add snapshot of QTI haptics driver)
 	return 0;
 }
 
